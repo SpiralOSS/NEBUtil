@@ -1,0 +1,19 @@
+{
+    "manifest_version": 3,
+    "name": "NEB Tools",
+    "description": "Set of utilities to work with neb.com",
+    "version": "0.9",
+    "action": {
+        "default_popup": "ext_neb_tools.html",
+        "default_icon": "ext_neb_tools.png",
+        "default_title": "NEB Tools"
+    },
+    "permissions": [
+        "clipboardWrite",
+        "activeTab",
+        "scripting"
+    ],
+    "background": {
+        "service_worker": "service_worker.js"
+    }
+}
