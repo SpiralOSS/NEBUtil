@@ -2,11 +2,11 @@
 // a script run in the popup that will inject a content_script into the active tab
 
 (async () => {
-    const [tab] = await chrome.tabs.query({active: true, currentWindow: true, url: "*://nebuilder.neb.com/#!/"})
-    if ([tab] !== undefined) {
+    const [tab] = await chrome.tabs.query({active: true, currentWindow: true, url: "*://nebuilder.neb.com/*"})
+    if (tab !== undefined) {
         try {
             await chrome.scripting.executeScript({
-                target: {tabId: tab.id},
+                target: { tabId: tab.id },
                 files: ['cs_nebuilder.js'],
             })
         } catch (ex) {
@@ -14,10 +14,6 @@
         }
     }
 })()
-
-document.getElementById('goButton').onclick = () => {
-    chrome.tabs.create({ url: 'https://nebuilder.neb.com' })
-}
 
 // chrome.action is the icon for the extension
 // so this method is fired when you click the icon

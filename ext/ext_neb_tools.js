@@ -51,36 +51,9 @@ function scrapeTableToString(tableName, tableData) {
     }
 }
 
-// NE BUILDER POR nebuilder_port = chrome.runtime.connect({name: "neb_tools_ext"})
+// NE BUILDER PORT
+nebuilder_port = chrome.runtime.connect({name: "neb_tools_ext"})
 nebuilder_port.onMessage.addListener((message, _) => {
-    clearView()
 
-    // SCRAPE TABLES
-    //  tables that we read; offer a button to copy the data to the clipboard
-    message.cs_data.filter(data => data.type === "scrape_table").forEach(data =>
-        mainView.appendChild(
-            createTableScrapeItem(data.name, scrapeTableToString(data.name, data.data))
-        )
-    )
 
-    // PCR BUILD ISSUES
-    //  list the PCRs that are causing build issues
-    //  offer a button to start a correction process
-    message.cs_data.filter(data => data.type === "pcr_build_issue").forEach(data =>
-        mainView.appendChild(
-            createTableScrapeItem(data.name, scrapeTableToString(data.name, data.data))
-        )
-    )
-
-    //if (!rowAdded) {
-    //    let span = document.createElement("span")
-    //    span.innerText = "No Data to Copy!"
-    //    span.classList.add("text-nowrap")
-    //    span.classList.add("text-red")
-    //    let td = document.createElement("td")
-    //    let tr = document.createElement("tr")
-    //    td.appendChild(span)
-    //    tr.appendChild(td)
-    //    table.appendChild(tr)
-    //}
 })

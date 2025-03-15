@@ -1,14 +1,36 @@
 <!doctype html>
 <html lang="en" data-theme="retro">
 <head>
+    <script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@v1.0.0-beta.9/bundles/datastar.js"></script>
     <link href="./style.css" rel="stylesheet">
     <title>NEB Scraper</title>
 </head>
-<body class="min-w-80">
-<div id="main" class="grid grid-cols-1 gap-4 p-4">
-    <button id="goButton" class="btn btn-sm">Open to NEB Builder!</button>
-</div>
+<body class="min-w-80" data-signals="{active:true}">
+
+<main id="mainView" class="grid">
+
+    <div id="nebButton" data-show="!$active" class="grid">
+        <button id="nebButton" class="col-span-2 btn btn-sm">Open to NEB Builder!</button>
+    </div>
+
+    <div id="tableComFrag" data-show="$active" class="grid grid-cols-3 gap-4">
+        <span class="col-span-2">Component Fragments</span>
+        <button class="btn btn-sm">Copy!</button>
+    </div>
+    <div id="tableReqOlig" data-show="$active" class="grid grid-cols-3 gap-4">
+        <span class="col-span-2">Required Oligonucleotides</span>
+        <button class="btn btn-sm">Copy!</button>
+    </div>
+</main>
 </body>
 <script src="./ext_neb_tools.js"></script>
-<script src="./ext_inject_content_script.js"></script>
+<script src="./ext_inject_content_script.js">
+
+
+</script>
+<script>
+document.getElementById('nebButton').onclick = () => {
+    chrome.tabs.create({url: 'https://nebuilder.neb.com'})
+}
+</script>
 </html>

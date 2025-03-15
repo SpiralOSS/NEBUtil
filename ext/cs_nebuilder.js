@@ -1,3 +1,6 @@
+// cs_nebuilder.js
+//
+
 function memberExists(member) {
     let notExists = false
     notExists = notExists || member === null
@@ -5,9 +8,7 @@ function memberExists(member) {
     return !notExists
 }
 
-function hasClassName(elem, className) {
-    return elem.classList !== undefined && elem.classList.contains(className)
-}
+function hasClassName(elem, className) { return elem.classList !== undefined && elem.classList.contains(className) }
 
 function findTableByName(tableName) {
     let tableHeadersElem = Array.from(document.getElementsByTagName("h5"))
@@ -65,10 +66,10 @@ function scrapeTable(tableName, readTableCellFunc) {
 }
 
 function scrapePcrBuildIssues() {
-    let re = new RegExp(/Primer (\w*) has %GC outside of desired range/)
+    let re = new RegExp(/Primer (.*?) has %GC outside of desired range/)
     try {
         let noteItems = document.getElementsByClassName("noteitem")
-        return Array.from(noteItems)
+        let zz = Array.from(noteItems)
             .map(noteItemEl => re.exec(noteItemEl.innerText)?.at(1))
             .filter(_ => _ !== undefined)
             .map(noteItemName => newScrapeDataItem(noteItemName, "pcr_build_issue", {}))
@@ -113,7 +114,7 @@ function scrapeData() {
     let buildIssueNames = scrapePcrBuildIssues()
     buildIssueNames.forEach(issue => scrapeData.push(buildIssueNames))
 
-    port.postMessage({cs_data: scrapeData});
+    port.postMessage( { cs_data: scrapeData } );
 }
 
 scrapeData()
