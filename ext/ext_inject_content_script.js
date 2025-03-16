@@ -15,6 +15,8 @@
     }
 })()
 
+
+
 // chrome.action is the icon for the extension
 // so this method is fired when you click the icon
 // on click, we inject the cs_<script>. it will connect to the neb_tools port and report everything it needs to
