@@ -11,7 +11,7 @@ chrome.runtime.onConnect.addListener(function (port) {
     } else if (port.name === "neb_tools_cs") {
         port_cs = port  // Content Script port; port_ext will receive messages from it
 
-        // Setup unidirectional communication
+        // Setup unidirectional communication between content script (in the browser) and extension
         port_cs.onMessage.addListener(msg => {
             port_ext.postMessage(msg)
         })
@@ -19,4 +19,9 @@ chrome.runtime.onConnect.addListener(function (port) {
             port_cs.postMessage(msg)
         })
     }
+})
+
+chrome.runtime.onSuspend.addListener(function (suspend) {
+    port_ext = undefined
+    port_cs = undefined
 })

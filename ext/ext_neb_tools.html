@@ -4,25 +4,49 @@
     <link href="./style.css" rel="stylesheet">
     <title>NEB Scraper</title>
 </head>
-<body class="min-w-80">
+<body class="min-w-96">
 
 <main id="mainView" class="flex flex-col p-4 gap-4">
 
-    <div id="viewNebButton">
-        <button id="nebButton" class="btn">Open to NEB Builder!</button>
+    <div id="view_nebButton" class="flex justify-center">
+        <button id="nebButton" class="btn w-64">Open New NEB Builder!</button>
     </div>
 
-    <div id="viewCompFrag" class="flex justify-between items-center">
+    <div id="view_compFrag" class="flex justify-between items-center">
         <span class="font-bold text-base text-nowrap">Component Fragments</span>
         <button id="btnCopyCompFrag" class="btn">Copy!</button>
     </div>
 
-    <div id="viewRequOlig" class="flex justify-between items-center">
+    <div id="view_requOlig" class="flex justify-between items-center">
         <span class="font-bold text-base text-nowrap">Required Oligonucleotides</span>
         <button id="btnCopyRequOlig" class="btn">Copy!</button>
     </div>
+
+    <div id="view_pcr_multipleBuildIssue" class="flex flex-col">
+        <div class="flex justify-between items-center">
+            <span class="font-bold text-base text-red-700">Multiple Primers Outside Acceptable Ranges!</span>
+        </div>
+    </div>
+
+    <div id="view_pcr_buildIssue" class="flex flex-col">
+        <div class="flex flex-col justify-between items-center">
+            <span class="pcrName font-bold text-base text-nowrap text-red-700">Primer Outside Range!</span>
+            <button id="btnGetPrimerRegions" class="btn">Get Base Regions!</button>
+        </div>
+    </div>
+
+    <div id="view_pcr_buildIssueRanges" class="flex flex-col">
+        <div class="flex justify-between items-center">
+            <span class="pcrName font-bold text-base text-nowrap text-red-700">Primer Outside Range!</span>
+        </div>
+        <div class="flex justify-around gap-4 p-4">
+            <input type="text" id="primerLowRange" value="1000">
+            <input type="text" id="primerHighRange" value="3000">
+        </div>
+    </div>
 </main>
 </body>
+<script src="./shared.js"></script>
 <script src="./ext_neb_tools.js"></script>
 <script src="./ext_inject_content_script.js"></script>
 </html>

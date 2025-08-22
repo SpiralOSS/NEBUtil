@@ -2,25 +2,41 @@
 // script run in the extension that connects to the service_worker and generates a table based on what is
 // sent to us
 
-function clearView() {
+class Request {
+    constructor(type, data) {
+        this.type = type
+        this.data = data
+    }
+}
 
-    document.getElementById("viewNebButton").classList.remove("hidden");
-    document.getElementById("viewCompFrag").classList.add("hidden")
-    document.getElementById("viewRequOlig").classList.add("hidden")
+function hideViews(subviews = "") {
+    let viewEls = []
+    if (subviews === "") {
+        viewEls = document.querySelectorAll('[id^="view"]');
+    } else {
+        viewEls = document.querySelectorAll('[id^="view_' + subviews + '_"]');
+    }
+    viewEls.forEach(el => el.classList.add('hidden'))
+}
+
+function showView(viewName) {
+    document.getElementById("view_" + viewName).classList.remove("hidden")
+}
+
+function clearView() {
+    hideViews()
+    showView('nebButton')
 }
 
 function scrapeTableToString(tableData) {
-    //  { name: "...", type: "scrape_table",
-    //    data: { header: [col1, col2, ...], rows: [ [ val11, val12 ], ... ] }
-    //  },
     if (tableData.name === "Component Fragments") {
-        let producedByIndex = tableData.data.header.indexOf("Produced by");
-        return tableData.data.rows
+        let producedByIndex = tableData.header.indexOf("Produced by");
+        return tableData.rows
             .sort((a, b) => a[producedByIndex].localeCompare(b[producedByIndex]))
             .map(row => row.join("\t"))
             .join("\n")
     } else if (tableData.name === "Required Oligonucleotides") {
-        return tableData.data.rows
+        return tableData.rows
             .map(row => row.join("\t"))
             .join("\n")
     }
@@ -28,36 +44,49 @@ function scrapeTableToString(tableData) {
 
 // NE BUILDER PORT
 nebuilder_port = chrome.runtime.connect({name: "neb_tools_ext"})
-nebuilder_port.onMessage.addListener((message, _) => {
-    let hideNebButton = false
-    clearView()
+nebuilder_port.onMessage.addListener((response, _) => {
+    console.log(response)
 
-    let compFrags = message.cs_data.find(data => data.name === "Component Fragments")
-    if (compFrags !== undefined) {
-        let tableAsString = scrapeTableToString(compFrags)
-        document.getElementById("btnCopyCompFrag").onclick = function()
-        {
-            navigator.clipboard.writeText(tableAsString)
-        }
-        document.getElementById("viewCompFrag").classList.remove("hidden")
-        hideNebButton = true
+    // COMPONENT FRAGMENTS
+    if (response.type === ResponseType.TABLE_COMPONENT_FRAGMENT) {
+        let tableAsString = scrapeTableToString(response.data)
+        document.getElementById("btnCopyCompFrag").onclick = () => navigator.clipboard.writeText(tableAsString)
+        showView('compFrag')
     }
 
-    let requOlig = message.cs_data.find(data => data.name === "Required Oligonucleotides")
-    if (requOlig !== undefined) {
-        let tableAsString = scrapeTableToString(requOlig)
-        document.getElementById("btnCopyRequOlig").onclick = function () {
-            navigator.clipboard.writeText(tableAsString)
-        }
-        document.getElementById("viewRequOlig").classList.remove("hidden")
-        hideNebButton = true
+    // REQUIRED OLIGONUCLEOTIDES
+    if (response.type === ResponseType.TABLE_REQUIRED_OLIG) {
+        let tableAsString = scrapeTableToString(response.data)
+        document.getElementById("btnCopyRequOlig").onclick = () => navigator.clipboard.writeText(tableAsString)
+        showView('requOlig')
     }
 
-    if (hideNebButton) {
-        document.getElementById("viewNebButton").classList.add("hidden");
+    // PCR ISSUES
+    if (response.type === ResponseType.PCR_OUTSIDE_DESIRED_RANGE) {
+        hideViews('pcr')
+
+        let pcrIssueNames = response.data  // an array of names
+        if (pcrIssueNames.length > 1) {
+            showView('pcr_multipleBuildIssue')  // we only can handle one
+
+        } else if (pcrIssueNames.length === 1) {
+            let pcrIssueName = pcrIssueNames[0]
+
+            // set the name of the fragment with the issue
+            Array.from(document.getElementsByClassName("pcrName")).forEach(el => el.innerText = `Primer ${pcrIssueName} Outside Range!`)
+
+            // set the button to request the existing ranges
+            document.getElementById('btnGetPrimerRegions').onclick =
+                () => nebuilder_port.postMessage(new Request(RequestType.PCR_START_RANGES, pcrIssueName))
+
+            showView('pcr_buildIssue')
+        }
+    }
+
+    if (response.type === ResponseType.PCR_START_RANGES) {
+        hideViews('pcr')
     }
 })
-
 
 document.getElementById('nebButton').onclick = () => {
     chrome.tabs.create({url: 'https://nebuilder.neb.com'})
