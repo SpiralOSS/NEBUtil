@@ -3,7 +3,7 @@
 
 (async () => {
     const [tab] = await chrome.tabs.query({active: true, currentWindow: true, url: "*://nebuilder.neb.com/*"})
-    if (tab !== undefined) {
+    if (typeof tab !== 'undefined') {
         try {
             await chrome.scripting.executeScript({
                 target: { tabId: tab.id },

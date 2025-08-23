@@ -1,7 +1,11 @@
 // cs_nebuilder.js
-//
+// content script
 
-if (typeof Message === 'undefined') {
+function isDefined(obj) {
+    return typeof(obj) !== 'undefined'
+}
+
+if (!isDefined(Message)) {
     var ScrapeTable = class {
         header = []
         rows = []
@@ -31,25 +35,34 @@ if (typeof Message === 'undefined') {
         PCR_START_RANGES: 3,
     }
 
-    // From Extenstion to ContentScript
+    // From Extension to ContentScript
     var RequestType = {
         PCR_START_RANGES: 0,
     }
 }
-
 function memberExists(member) {
     let notExists = false
     notExists = notExists || member === null
-    notExists = notExists || member === undefined
+    notExists = notExists || !isDefined(member)
     return !notExists
 }
 
-function hasClassName(elem, className) { return elem.classList !== undefined && elem.classList.contains(className) }
+function hasClassName(elem, className) {
+    try {
+        return isDefined(elem.classList) && elem.classList.contains(className)
+    } catch {
+        return false
+    }
+}
 
 function findTableByName(tableName) {
-    let tableHeadersElem = Array.from(document.getElementsByTagName("h5"))
-    let tableHeaderElem = tableHeadersElem.find(t => t.innerText === tableName)
-    return tableHeaderElem.parentElement.parentElement.getElementsByTagName("table")[0]
+    try {
+        let tableHeadersElem = Array.from(document.getElementsByTagName("h5"))
+        let tableHeaderElem = tableHeadersElem.find(t => t.innerText === tableName)
+        return tableHeaderElem.parentElement.parentElement.getElementsByTagName("table")[0]
+    } catch {
+        return undefined
+    }
 }
 
 function readTableHeader(tableElem) {
@@ -68,19 +81,20 @@ function readTableCell(tableDataElem) {
         .filter(tableCellNode => !hasClassName(tableCellNode, "mlabel"))
         //.filter(tableCellNode => !hasClassName(tableCellNode, "spacer"))
         .map(td => {
-            if (td.innerText !== undefined) {
+            if (isDefined(td.innerText)) {
                 return td.innerText
-            } else if (td.data !== undefined) {
+            } else if (isDefined(td.data)) {
                 return td.data.toString()
             }
         })
         .map(text => text.replace('"', '').trim())
         .join("")
 }
+
 function scrapeTable(tableName, readTableCellFunc) {
     try {
         let table = findTableByName(tableName)
-        if (table !== undefined) {
+        if (isDefined(table)) {
             let scrapeTable = new ScrapeTable(tableName)
             scrapeTable.header = readTableHeader(table)
             scrapeTable.rows = readTableRows(table, readTableCellFunc)
@@ -91,12 +105,13 @@ function scrapeTable(tableName, readTableCellFunc) {
     }
     return new ScrapeTable(tableName)
 }
+
 function scrapePcrBuildIssues() {
     let re = new RegExp(/Primer (.*?) has %GC outside of desired range/)
     try {
         let allNoteItemNames = Array.from(document.getElementsByClassName("noteitem"))
             .map(noteItemEl => re.exec(noteItemEl.innerText)?.at(1))
-            .filter(_ => _ !== undefined)
+            .filter(isDefined)
         let uniqNoteItemNames = allNoteItemNames
             .filter((noteItem, pos) => allNoteItemNames.indexOf(noteItem) === pos)
         console.log(uniqNoteItemNames)
@@ -130,7 +145,7 @@ function handleRequest(request) {
 }
 
 function getPort() {
-    if (nebuilder_port === undefined) {
+    if (!isDefined(nebuilder_port)) {
         var nebuilder_port = chrome.runtime.connect({name: "neb_tools_cs"})
         nebuilder_port.onDisconnect = () => nebuilder_port = undefined
         nebuilder_port.onMessage.addListener((message, _) => handleRequest(message))

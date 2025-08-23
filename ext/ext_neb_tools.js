@@ -9,12 +9,18 @@ class Request {
     }
 }
 
+function queryAllToArray(selectors){
+    return Array.from(document.querySelectorAll(selectors))
+}
+
 function hideViews(subviews = "") {
     let viewEls = []
     if (subviews === "") {
-        viewEls = document.querySelectorAll('[id^="view"]');
+        viewEls = queryAllToArray('[id^="view"]')
     } else {
-        viewEls = document.querySelectorAll('[id^="view_' + subviews + '_"]');
+        viewEls =
+            queryAllToArray('[id^="view_' + subviews + '_"]')
+            .concat(queryAllToArray('[id^="view_' + subviews + '"]'));
     }
     viewEls.forEach(el => el.classList.add('hidden'))
 }
@@ -29,17 +35,19 @@ function clearView() {
 }
 
 function scrapeTableToString(tableData) {
+    let ret = ""
     if (tableData.name === "Component Fragments") {
         let producedByIndex = tableData.header.indexOf("Produced by");
-        return tableData.rows
+        ret = tableData.rows
             .sort((a, b) => a[producedByIndex].localeCompare(b[producedByIndex]))
             .map(row => row.join("\t"))
             .join("\n")
     } else if (tableData.name === "Required Oligonucleotides") {
-        return tableData.rows
+        ret = tableData.rows
             .map(row => row.join("\t"))
             .join("\n")
     }
+    return ret
 }
 
 // NE BUILDER PORT
@@ -86,6 +94,8 @@ nebuilder_port.onMessage.addListener((response, _) => {
     if (response.type === ResponseType.PCR_START_RANGES) {
         hideViews('pcr')
     }
+
+    hideViews('nebButton')
 })
 
 document.getElementById('nebButton').onclick = () => {
