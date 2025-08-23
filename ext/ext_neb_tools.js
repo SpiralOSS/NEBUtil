@@ -53,7 +53,9 @@ function scrapeTableToString(tableData) {
 // NE BUILDER PORT
 nebuilder_port = chrome.runtime.connect({name: "neb_tools_ext"})
 nebuilder_port.onMessage.addListener((response, _) => {
-    console.log(response)
+    //console.log('-- Response --')
+    //console.log(response)
+    hideViews('nebButton')
 
     // COMPONENT FRAGMENTS
     if (response.type === ResponseType.TABLE_COMPONENT_FRAGMENT) {
@@ -71,9 +73,10 @@ nebuilder_port.onMessage.addListener((response, _) => {
 
     // PCR ISSUES
     if (response.type === ResponseType.PCR_OUTSIDE_DESIRED_RANGE) {
+        //console.log('   -- PCR Outside Desired Range --')
         hideViews('pcr')
 
-        let pcrIssueNames = response.data  // an array of names
+        let pcrIssueNames = response.data.names  // an array of names
         if (pcrIssueNames.length > 1) {
             showView('pcr_multipleBuildIssue')  // we only can handle one
 
@@ -91,11 +94,6 @@ nebuilder_port.onMessage.addListener((response, _) => {
         }
     }
 
-    if (response.type === ResponseType.PCR_START_RANGES) {
-        hideViews('pcr')
-    }
-
-    hideViews('nebButton')
 })
 
 document.getElementById('nebButton').onclick = () => {

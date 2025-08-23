@@ -114,7 +114,6 @@ function scrapePcrBuildIssues() {
             .filter(isDefined)
         let uniqNoteItemNames = allNoteItemNames
             .filter((noteItem, pos) => allNoteItemNames.indexOf(noteItem) === pos)
-        console.log(uniqNoteItemNames)
         return new PcrIssues(uniqNoteItemNames)
     } catch (ex) {
         console.error("Error scrapePcrBuildIssues: " + ex)
@@ -125,7 +124,8 @@ function scrapePcrBuildIssues() {
 ///////////////////////////////////////////////////////////////
 
 function handleRequest(request) {
-    console.log(request)
+    //console.log("-- Request --")
+    //console.log(request)
     if (request.type === RequestType.PCR_START_RANGES) {
         let pcrName = request.data[0]
 
